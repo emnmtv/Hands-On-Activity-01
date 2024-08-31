@@ -1,11 +1,13 @@
 <div class="container">
+  <!-- Toggle form visibility -->
   <button (click)="toggleForm()" class="btn btn-info">
     {{ formVisible ? 'Hide Form' : 'Show Form' }}
   </button>
 
+  <!-- Product form for adding or updating a product -->
   <div class="product-form card" *ngIf="formVisible">
-    <form [formGroup]="productForm" (ngSubmit)="addProduct()">
-      <h3 class="form-title">Add New Product</h3>
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+      <h3 class="form-title">{{ isEditMode ? 'Update Product' : 'Add New Product' }}</h3>
 
       <div class="form-group">
         <label for="title">Title</label>
@@ -32,12 +34,39 @@
         <input id="image" formControlName="image" placeholder="Enter image URL" />
       </div>
 
-      <button type="submit" class="btn btn-primary">Add Product</button>
+      <div class="form-actions">
+        <!-- Submit button changes text based on edit mode -->
+        <button type="submit" class="btn btn-primary">
+          {{ isEditMode ? 'Update Product' : 'Add Product' }}
+        </button>
+        <!-- Cancel button, only visible in edit mode -->
+        <button type="button" *ngIf="isEditMode" class="btn btn-secondary" (click)="cancelEdit()">Cancel</button>
+      </div>
     </form>
   </div>
 
-  <div class="product-list">
-    <div class="product-card card" *ngFor="let product of products">
+  <!-- Category filter dropdown -->
+  <div class="category-filter mt-3">
+    <label for="categorySelect">Filter by Category:</label>
+    <select id="categorySelect" (change)="filterByCategory($event)">
+      <option value="">All</option>
+      <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+    </select>
+  </div>
+
+  <!-- Price sorting dropdown -->
+  <div class="price-sort mt-3">
+    <label for="priceSort">Sort by Price:</label>
+    <select id="priceSort" (change)="sortByPrice($event)">
+      <option value="">Select</option>
+      <option value="lowToHigh">Low to High</option>
+      <option value="highToLow">High to Low</option>
+    </select>
+  </div>
+
+  <!-- Product list display -->
+  <div class="product-list mt-4">
+    <div class="product-card card mb-3" *ngFor="let product of filteredProducts">
       <img [src]="product.image" alt="{{ product.title }}" class="product-image" />
       <div class="product-details">
         <h2 class="product-title">{{ product.title }}</h2>
@@ -46,10 +75,9 @@
         <p class="product-category"><strong>Category:</strong> {{ product.category }}</p>
         <div class="product-actions">
           <button (click)="deleteProduct(product.id)" class="btn btn-danger">Delete</button>
-          <button (click)="updateProduct(product.id)" class="btn btn-secondary">Update</button>
+          <button (click)="editProduct(product)" class="btn btn-secondary">Edit</button>
         </div>
       </div>
     </div>
   </div>
 </div>
-
